@@ -188,7 +188,6 @@ foreach ($files as $file) {
         default => [],
     };
 
-
 }
 
 // confirm('Execute `composer install` and run tests?') && run('composer install && composer test');
