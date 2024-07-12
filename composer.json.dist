@@ -1,17 +1,16 @@
 {
-    "name": "juniorfontenele/laravel-package-skeleton",
-    "description": "Laravel package skeleton",
-    "version": "1.0.0",
+    "name": ":vendor_slug/:package_slug",
+    "description": ":package_description",
     "keywords": [
-        "laravel",
-        "package-skeleton"
+        ":vendor_name",
+        ":package_slug"
     ],
-    "homepage": "https://github.com/juniorfontenele/laravel-package-skeleton",
+    "homepage": "https://github.com/:vendor_slug/:package_slug",
     "license": "MIT",
     "authors": [
         {
-            "name": "Junior Fontenele",
-            "email": "github@juniorfontenele.com.br"
+            "name": ":author_name",
+            "email": "author@domain.com"
         }
     ],
     "require": {
