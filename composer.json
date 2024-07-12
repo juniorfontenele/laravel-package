@@ -1,7 +1,6 @@
 {
     "name": "juniorfontenele/laravel-package-skeleton",
     "description": "Laravel package skeleton",
-    "version": "1.0.0",
     "keywords": [
         "laravel",
         "package-skeleton"
