@@ -4,7 +4,9 @@
 # Ignore all test and documentation with "export-ignore".
 /.gitattributes export-ignore
 /psalm.xml.dist export-ignore
-/art export-ignore
-/docs export-ignore
-/UPGRADING.md export-ignore
-/composer.lock export-ignore
+/art            export-ignore
+/docs           export-ignore
+/UPGRADING.md   export-ignore
+/composer.lock  export-ignore
+/workbench      export-ignore
+testbench.yaml  export-ignore
