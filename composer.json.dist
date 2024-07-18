@@ -50,7 +50,9 @@
                 "VendorName\\Skeleton\\Providers\\SkeletonServiceProvider"
             ],
             "dont-discover": [
-                "*"
+                "orchestra/testbench",
+                "orchestra/canvas",
+                "orchestra/canvas-core"
             ]
         }
     },
