@@ -270,6 +270,9 @@ if (! $useUpdateChangelogWorkflow) {
     safeUnlink(__DIR__.'/.github/workflows/update-changelog.yml');
 }
 
+file_exists('.env') || copy('.env.example', '.env');
+file_exists('database/database.sqlite') || touch('database/database.sqlite');
+
 confirm('Execute `composer install` and run tests?') && run('composer install && composer test');
 
 confirm('Let this script delete itself?', true) && unlink(__FILE__);
