@@ -123,6 +123,40 @@ function replaceForAllOtherOSes(): array
     return explode(PHP_EOL, run('grep -E -r -l -i ":author|:vendor|:package|VendorName|skeleton|vendor_name|vendor_slug|author@domain.com" --exclude-dir=vendor ./* ./.github/* | grep -v '.basename(__FILE__)));
 }
 
+function safeUnlink(string $filename)
+{
+    if (file_exists($filename) && is_file($filename)) {
+        unlink($filename);
+    }
+}
+
+function remove_composer_deps(array $names)
+{
+    $data = json_decode(file_get_contents(__DIR__.'/composer.json'), true);
+
+    foreach ($data['require-dev'] as $name => $version) {
+        if (in_array($name, $names, true)) {
+            unset($data['require-dev'][$name]);
+        }
+    }
+
+    file_put_contents(__DIR__.'/composer.json', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+}
+
+function remove_composer_script($scriptName)
+{
+    $data = json_decode(file_get_contents(__DIR__.'/composer.json'), true);
+
+    foreach ($data['scripts'] as $name => $script) {
+        if ($scriptName === $name) {
+            unset($data['scripts'][$name]);
+            break;
+        }
+    }
+
+    file_put_contents(__DIR__.'/composer.json', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+}
+
 $gitName = run('git config user.name');
 $authorName = ask('Author name', $gitName);
 
@@ -149,12 +183,25 @@ $className = title_case($packageName);
 $className = ask('Class name', $className);
 $description = ask('Package description', "This is my package {$packageSlug}");
 
+$usePhpStan = confirm('Enable PhpStan?', true);
+$useLaravelPint = confirm('Enable Laravel Pint?', true);
+$useDependabot = confirm('Enable Dependabot?', true);
+$useLaravelRay = confirm('Use Ray for debugging?', true);
+$useUpdateChangelogWorkflow = confirm('Use automatic changelog updater workflow?', true);
+
 writeln('------');
 writeln("Author     : {$authorName} ({$authorUsername}, {$authorEmail})");
 writeln("Vendor     : {$vendorName} ({$vendorSlug})");
 writeln("Package    : {$packageSlug} <{$description}>");
 writeln("Namespace  : {$vendorNamespace}\\{$className}");
 writeln("Class name : {$className}");
+writeln('---');
+writeln('Packages & Utilities');
+writeln('Use Laravel/Pint     : '.($useLaravelPint ? 'yes' : 'no'));
+writeln('Use Larastan/PhpStan : '.($usePhpStan ? 'yes' : 'no'));
+writeln('Use Dependabot       : '.($useDependabot ? 'yes' : 'no'));
+writeln('Use Ray App          : '.($useLaravelRay ? 'yes' : 'no'));
+writeln('Use Auto-Changelog   : '.($useUpdateChangelogWorkflow ? 'yes' : 'no'));
 writeln('------');
 
 writeln('This script will replace the above values in all relevant files in the project directory.');
@@ -190,6 +237,39 @@ foreach ($files as $file) {
 
 }
 
-// confirm('Execute `composer install` and run tests?') && run('composer install && composer test');
+if (! $useLaravelPint) {
+    safeUnlink(__DIR__.'/.github/workflows/fix-php-code-style-issues.yml');
+    safeUnlink(__DIR__.'/pint.json');
+}
+
+if (! $usePhpStan) {
+    safeUnlink(__DIR__.'/phpstan.neon.dist');
+    safeUnlink(__DIR__.'/phpstan-baseline.neon');
+    safeUnlink(__DIR__.'/.github/workflows/phpstan.yml');
+
+    remove_composer_deps([
+        'phpstan/extension-installer',
+        'phpstan/phpstan-deprecation-rules',
+        'phpstan/phpstan-phpunit',
+        'larastan/larastan',
+    ]);
+
+    remove_composer_script('phpstan');
+}
+
+if (! $useDependabot) {
+    safeUnlink(__DIR__.'/.github/dependabot.yml');
+    safeUnlink(__DIR__.'/.github/workflows/dependabot-auto-merge.yml');
+}
+
+if (! $useLaravelRay) {
+    remove_composer_deps(['spatie/laravel-ray']);
+}
+
+if (! $useUpdateChangelogWorkflow) {
+    safeUnlink(__DIR__.'/.github/workflows/update-changelog.yml');
+}
+
+confirm('Execute `composer install` and run tests?') && run('composer install && composer test');
 
 confirm('Let this script delete itself?', true) && unlink(__FILE__);
