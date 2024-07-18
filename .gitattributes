@@ -10,3 +10,8 @@
 /composer.lock  export-ignore
 /workbench      export-ignore
 testbench.yaml  export-ignore
+/.github        export-ignore
+/bootstrap      export-ignore
+/storage/logs   export-ignore
+/artisan        export-ignore
+/.editorconfig  export-ignore

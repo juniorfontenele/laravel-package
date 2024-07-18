@@ -18,12 +18,14 @@
         "illuminate/support": "~11"
     },
     "require-dev": {
+        "fakerphp/faker": "^1.23",
+        "laravel/framework": "^11",
         "laravel/pint": "^1.16",
+        "laravel/tinker": "^2.9",
+        "nunomaduro/collision": "^8.1",
         "pestphp/pest": "^2.34",
         "spatie/laravel-ray": "^1.37",
-        "spatie/ray": "^1.28",
-        "orchestra/testbench": "^9.1",
-        "nunomaduro/collision": "^8.1"
+        "spatie/ray": "^1.28"
     },
     "autoload": {
         "psr-4": {
@@ -48,9 +50,6 @@
         "test-coverage": "vendor/bin/pest --coverage",
         "post-root-package-install": [
             "@php configure.php"
-        ],
-        "post-create-project-cmd": [
-            "@php vendor/bin/testbench workbench:install --ansi"
         ]
     },
     "config": {

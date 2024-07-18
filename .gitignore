@@ -29,3 +29,4 @@ yarn-error.log
 /.vscode
 _ide_helper*
 .phpstorm.meta.php
+/storage/logs
