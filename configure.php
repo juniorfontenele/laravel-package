@@ -273,6 +273,8 @@ if (! $useUpdateChangelogWorkflow) {
 file_exists('.env') || copy('.env.example', '.env');
 file_exists('database/database.sqlite') || touch('database/database.sqlite');
 
-confirm('Execute `composer install` and run tests?') && run('composer install && composer test');
+run('composer install && composer test');
+
+run('php artisan key:generate');
 
 confirm('Let this script delete itself?', true) && unlink(__FILE__);

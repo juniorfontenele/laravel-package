@@ -50,7 +50,7 @@
                 "VendorName\\Skeleton\\Providers\\SkeletonServiceProvider"
             ],
             "dont-discover": [
-                "orchestra/testbench"
+                "*"
             ]
         }
     },
