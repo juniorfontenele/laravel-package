@@ -4,10 +4,12 @@ on:
   push:
     paths:
       - "**.php"
-      - ".github/workflows/run-tests.yml"
-      - "phpunit.xml"
+      - ".github/workflows/tests.yml"
       - "composer.json"
       - "composer.lock"
+    tags-ignore:
+      - "**"
+  pull_request:
 
 jobs:
   test:
