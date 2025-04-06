@@ -160,18 +160,122 @@ function remove_composer_script($scriptName)
     file_put_contents(__DIR__ . '/composer.json', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
 
+function getGitHubApiEndpoint(string $endpoint): ?stdClass
+{
+    try {
+        $curl = curl_init("https://api.github.com/{$endpoint}");
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTPGET => true,
+            CURLOPT_HTTPHEADER => [
+                'User-Agent: spatie-configure-script/1.0',
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+        $statusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        curl_close($curl);
+
+        if ($statusCode === 200) {
+            return json_decode($response);
+        }
+    } catch (Exception $e) {
+        // ignore
+    }
+
+    return null;
+}
+
+function searchCommitsForGitHubUsername(): string
+{
+    $authorName = strtolower(trim(shell_exec('git config user.name')));
+
+    $committersRaw = shell_exec("git log --author='@users.noreply.github.com' --pretty='%an:%ae' --reverse");
+    $committersLines = explode("\n", $committersRaw ?? '');
+    $committers = array_filter(array_map(function ($line) use ($authorName) {
+        $line = trim($line);
+        [$name, $email] = explode(':', $line) + [null, null];
+
+        return [
+            'name' => $name,
+            'email' => $email,
+            'isMatch' => strtolower($name) === $authorName && ! str_contains($name, '[bot]'),
+        ];
+    }, $committersLines), fn ($item) => $item['isMatch']);
+
+    if (empty($committers)) {
+        return '';
+    }
+
+    $firstCommitter = reset($committers);
+
+    return explode('@', $firstCommitter['email'])[0] ?? '';
+}
+
+function guessGitHubUsernameUsingCli()
+{
+    try {
+        if (preg_match('/ogged in to github\.com as ([a-zA-Z-_]+).+/', shell_exec('gh auth status -h github.com 2>&1'), $matches)) {
+            return $matches[1];
+        }
+    } catch (Exception $e) {
+        // ignore
+    }
+
+    return '';
+}
+
+function guessGitHubUsername(): string
+{
+    $username = searchCommitsForGitHubUsername();
+
+    if (! empty($username)) {
+        return $username;
+    }
+
+    $username = guessGitHubUsernameUsingCli();
+
+    if (! empty($username)) {
+        return $username;
+    }
+
+    // fall back to using the username from the git remote
+    $remoteUrl = shell_exec('git config remote.origin.url') ?? '';
+    $remoteUrlParts = explode('/', str_replace(':', '/', trim($remoteUrl)));
+
+    return $remoteUrlParts[1] ?? '';
+}
+
+function guessGitHubVendorInfo($authorName, $username): array
+{
+    $remoteUrl = shell_exec('git config remote.origin.url') ?? '';
+    $remoteUrlParts = explode('/', str_replace(':', '/', trim($remoteUrl)));
+
+    if (! isset($remoteUrlParts[1])) {
+        return [$authorName, $username];
+    }
+
+    $response = getGitHubApiEndpoint("orgs/{$remoteUrlParts[1]}");
+
+    if ($response === null) {
+        return [$authorName, $username];
+    }
+
+    return [$response->name ?? $authorName, $response->login ?? $username];
+}
+
 $gitName = run('git config user.name');
 $authorName = ask('Author name', $gitName);
 
 $gitEmail = run('git config user.email');
 $authorEmail = ask('Author email', $gitEmail);
+$authorUsername = ask('Author GIT username', guessGitHubUsername());
 
-$usernameGuess = @explode(':', run('git config remote.origin.url'))[1] ?? '';
-$usernameGuess = @dirname($usernameGuess);
-$usernameGuess = @basename($usernameGuess);
-$authorUsername = ask('Author GIT username', $usernameGuess);
+$guessGitHubVendorInfo = guessGitHubVendorInfo($authorName, $authorUsername);
 
-$vendorName = ask('Vendor name', $authorUsername);
+$vendorName = ask('Vendor name', $guessGitHubVendorInfo[0]);
 $vendorSlug = slugify($vendorName);
 $vendorNamespace = ucwords($vendorName);
 $vendorNamespace = ask('Vendor namespace', $vendorNamespace);
@@ -245,8 +349,7 @@ if (! $useLaravelPint) {
 }
 
 if (! $usePhpStan) {
-    safeUnlink(__DIR__ . '/phpstan.neon.dist');
-    safeUnlink(__DIR__ . '/phpstan-baseline.neon');
+    safeUnlink(__DIR__ . '/phpstan.neon');
     safeUnlink(__DIR__ . '/.github/workflows/phpstan.yml');
 
     remove_composer_deps([
