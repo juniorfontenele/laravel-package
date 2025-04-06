@@ -86,6 +86,11 @@ function title_case(string $subject): string
     return str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $subject)));
 }
 
+function camel_case(string $subject): string
+{
+    return lcfirst(str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $subject))));
+}
+
 function replace_in_file(string $file, array $replacements): void
 {
     $contents = file_get_contents($file);
@@ -277,7 +282,7 @@ $guessGitHubVendorInfo = guessGitHubVendorInfo($authorName, $authorUsername);
 
 $vendorName = ask('Vendor name', $guessGitHubVendorInfo[0]);
 $vendorSlug = slugify($vendorName);
-$vendorNamespace = ucwords($vendorName);
+$vendorNamespace = camel_case(ucwords($vendorName));
 $vendorNamespace = ask('Vendor namespace', $vendorNamespace);
 
 $currentDirectory = getcwd();
@@ -378,7 +383,7 @@ if (! $useUpdateChangelogWorkflow) {
 file_exists('.env') || copy('.env.example', '.env');
 file_exists('database/database.sqlite') || touch('database/database.sqlite');
 
-run('composer install && composer test');
+run('composer install && npm install && composer test');
 
 run('php artisan key:generate');
 
