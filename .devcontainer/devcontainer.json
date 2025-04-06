@@ -56,6 +56,5 @@
     }
   },
   "remoteUser": "sail",
-  "initializeCommand": "if [ ! -f .env ]; then cp .env.example .env; fi && if ! grep -q \"WWWUSER_ID=\" .env; then echo \"\nWWWUSER_ID=$(id -u)\" >> .env; fi && if ! grep -q \"WWWGROUP_ID=\" .env; then echo \"WWWGROUP_ID=$(id -g)\" >> .env; fi && if ! grep -q \"^APP_KEY=base64\" .env; then NEW_KEY=\"base64:$(openssl rand -base64 32)\"; sed -i \"s|^APP_KEY=.*|APP_KEY=$NEW_KEY|\" .env; fi",
-  "postCreateCommand": "echo 'alias a=\"php /app/artisan\"' >> ~/.bashrc && cd /app && composer install && npm install && chown -R sail:sail /app"
+  "postCreateCommand": "echo 'alias a=\"php /app/artisan\"' >> ~/.bashrc && cd /app && php configure.php && chown -R sail:sail /app"
 }
