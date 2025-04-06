@@ -56,5 +56,5 @@
     }
   },
   "remoteUser": "sail",
-  "postCreateCommand": "echo 'alias a=\"php /app/artisan\"' >> ~/.bashrc && cd /app && php configure.php && chown -R sail:sail /app"
+  "postCreateCommand": "echo 'alias a=\"php /app/artisan\"' >> ~/.bashrc && cd /app && chown -R sail:sail /app"
 }
