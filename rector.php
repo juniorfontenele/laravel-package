@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\FuncCall\CompactToVariablesRector;
 use Rector\Config\RectorConfig;
-use Rector\Php71\Rector\FuncCall\RemoveExtraParametersRector;
-use Rector\Renaming\Rector\MethodCall\RenameMethodRector;
 use Rector\Set\ValueObject\SetList;
 use Rector\ValueObject\PhpVersion;
 use RectorLaravel\Set\LaravelLevelSetList;
