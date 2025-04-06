@@ -91,6 +91,14 @@ function camel_case(string $subject): string
     return lcfirst(str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $subject))));
 }
 
+function pascal_case(string $subject): string
+{
+    $subject = str_replace(['-', '_'], ' ', $subject);
+    $subject = ucwords(strtolower($subject));
+
+    return str_replace(' ', '', $subject);
+}
+
 function replace_in_file(string $file, array $replacements): void
 {
     $contents = file_get_contents($file);
@@ -282,7 +290,7 @@ $guessGitHubVendorInfo = guessGitHubVendorInfo($authorName, $authorUsername);
 
 $vendorName = ask('Vendor name', $guessGitHubVendorInfo[0]);
 $vendorSlug = slugify($vendorName);
-$vendorNamespace = camel_case(ucwords($vendorName));
+$vendorNamespace = pascal_case($vendorName);
 $vendorNamespace = ask('Vendor namespace', $vendorNamespace);
 
 $currentDirectory = getcwd();
