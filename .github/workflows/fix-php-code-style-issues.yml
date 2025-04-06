@@ -1,9 +1,12 @@
 name: Fix PHP code style issues
 
 on:
+  pull_request:
   push:
     paths:
-      - '**.php'
+      - "**.php"
+    tags-ignore:
+      - "**"
 
 permissions:
   contents: write
@@ -17,7 +20,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: master
+          ref: ${{ github.head_ref }}
 
       - name: Fix PHP code style issues
         uses: aglipanci/laravel-pint-action@2.5
@@ -25,4 +28,4 @@ jobs:
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'ci: fix styling (auto)'
+          commit_message: Fix styling
