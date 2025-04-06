@@ -4,6 +4,7 @@
 .phpunit.cache
 build
 composer.lock
+package-lock.json
 coverage
 docs
 vendor
@@ -14,6 +15,7 @@ vendor
 /public/hot
 /public/storage
 /storage/*.key
+/storage/rector
 .env
 .env.backup
 .env.production
@@ -26,7 +28,6 @@ npm-debug.log
 yarn-error.log
 /.fleet
 /.idea
-/.vscode
 _ide_helper*
 .phpstorm.meta.php
 /storage/logs
